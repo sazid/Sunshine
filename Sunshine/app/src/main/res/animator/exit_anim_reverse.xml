@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Bismillahir Rahmanir Rahim, ALLAHU AKBAR                                      ~
   ~ The MIT License (MIT)                                                         ~
@@ -23,20 +24,21 @@
   ~ SOFTWARE.                                                                     ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.mohammedsazidalrashid.android.sunshine.DetailsFragment$PlaceholderFragment">
+<set xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:id="@+id/textview_forecast_details"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/loading" />
+    <objectAnimator
+        android:duration="@android:integer/config_shortAnimTime"
+        android:interpolator="@android:interpolator/decelerate_quad"
+        android:propertyName="x"
+        android:valueFrom="0"
+        android:valueTo="800"
+        android:valueType="floatType" />
 
-</RelativeLayout>
+    <objectAnimator
+        android:duration="@android:integer/config_shortAnimTime"
+        android:interpolator="@android:interpolator/decelerate_quad"
+        android:propertyName="alpha"
+        android:valueFrom="1"
+        android:valueTo="0" />
+
+</set>

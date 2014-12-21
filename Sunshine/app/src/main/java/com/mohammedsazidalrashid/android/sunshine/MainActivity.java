@@ -25,6 +25,7 @@
 
 package com.mohammedsazidalrashid.android.sunshine;
 
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -33,15 +34,39 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
+    public static String LOG_TAG = MainActivity.class.getSimpleName();
+
+    public static Bundle bundleForFragments = new Bundle();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
+            getFragmentManager().beginTransaction()
                     .add(R.id.container, new ForecastFragment())
                     .commit();
         }
+
+        getFragmentManager().addOnBackStackChangedListener(
+                new FragmentManager.OnBackStackChangedListener() {
+                    @Override
+                    public void onBackStackChanged() {
+                        shouldDisplayHomeUp();
+                    }
+                }
+        );
+
+    }
+
+    @Override
+    public void onBackPressed() {
+//        Log.v(LOG_TAG, String.valueOf(getFragmentManager().getBackStackEntryCount()));
+        if (getFragmentManager().getBackStackEntryCount() < 1) {
+            super.onBackPressed();
+        }
+
+        getFragmentManager().popBackStack();
     }
 
 
@@ -65,6 +90,18 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void shouldDisplayHomeUp() {
+        boolean canGoBack = getFragmentManager().getBackStackEntryCount() > 0;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(canGoBack);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        // This method is called when the Up button is pressed.
+        getFragmentManager().popBackStack();
+        return true;
     }
 
 }

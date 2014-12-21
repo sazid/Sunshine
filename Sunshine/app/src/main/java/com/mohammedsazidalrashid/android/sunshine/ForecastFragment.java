@@ -25,11 +25,10 @@
 
 package com.mohammedsazidalrashid.android.sunshine;
 
-import android.content.Intent;
+import android.app.Fragment;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,9 +61,9 @@ import java.util.List;
  */
 public class ForecastFragment extends Fragment {
 
-    private final String LOG_TAG = ForecastFragment.class.getSimpleName();
     public static final String EXTRA_FORECAST = null;
-
+    private final String LOG_TAG = ForecastFragment.class.getSimpleName();
+    Bundle mBundle;
     private ArrayAdapter<String> mForecastAdapater;
 
     public ForecastFragment() {
@@ -75,6 +74,7 @@ public class ForecastFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
+        mBundle = savedInstanceState;
     }
 
     @Override
@@ -124,17 +124,90 @@ public class ForecastFragment extends Fragment {
         listviewForecast.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//                TextView tv = (TextView) view;
-//                Toast.makeText(getActivity(), tv.getText().toString(), Toast.LENGTH_SHORT).show();
                 String forecast = mForecastAdapater.getItem(position);
-//                Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(EXTRA_FORECAST, forecast);
-                startActivity(intent);
+                MainActivity.bundleForFragments.putString(EXTRA_FORECAST, forecast);
+                getActivity().getFragmentManager().beginTransaction()
+                        .addToBackStack(null)
+                        .setCustomAnimations(
+                                R.animator.enter_anim,
+                                R.animator.exit_anim,
+                                R.animator.enter_anim_reverse,
+                                R.animator.exit_anim_reverse)
+                        .replace(R.id.container, new DetailsFragment())
+                        .commit();
             }
         });
 
         return rootView;
+    }
+
+    private String getReadableDateString(long time) {
+        // The API returns a unix timestamp (in secs) which should be converted into millis
+        Date date = new Date(time * 1000);
+        // http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
+        return format.format(date).toString();
+    }
+
+    /**
+     * Prepare the weather high/lows for presentation
+     */
+    private String formatHighLows(double high, double low) {
+        // For presentation, assume the user don't care about tenth of a degree
+        long roundedHigh = Math.round(high);
+        long roundedLow = Math.round(low);
+
+        String highLowStr = roundedHigh + "/" + roundedLow;
+        return highLowStr;
+    }
+
+    /**
+     * Take the String representing the complete forecast in JSON format and pull out the
+     * data we need to construct the Strings needed for the wireframes.
+     */
+    private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
+            throws JSONException {
+
+        // These are the names of the JSON objects that need to be extracted
+        final String OWM_LIST = "list";
+        final String OWM_WEATHER = "weather";
+        final String OWM_TEMPERATURE = "temp";
+        final String OWM_MAX = "max";
+        final String OWM_MIN = "min";
+        final String OWM_DATETIME = "dt";
+        final String OWM_DESCRIPTION = "description";
+
+        JSONObject forecastJson = new JSONObject(forecastJsonStr);
+        JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
+
+        String[] resultStrs = new String[numDays];
+        for (int i = 0; i < weatherArray.length(); i++) {
+            // For now, using the format Day - description - hi/low
+            String day;
+            String description;
+            String highAndLow;
+
+            // Get the JSON object representing the day
+            JSONObject dayForecast = weatherArray.getJSONObject(i);
+
+            long dateTime = dayForecast.getLong(OWM_DATETIME);
+            day = getReadableDateString(dateTime);
+
+            // description is in a child array, which is 1 element long
+            description = dayForecast.getJSONArray(OWM_WEATHER)
+                    .getJSONObject(0)
+                    .getString(OWM_DESCRIPTION);
+
+            // Temperatures are in a child object called "temp"
+            JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
+            double high = temperatureObject.getDouble(OWM_MAX);
+            double low = temperatureObject.getDouble(OWM_MIN);
+            highAndLow = formatHighLows(high, low);
+
+            resultStrs[i] = day + " - " + description + " - " + highAndLow;
+        }
+
+        return resultStrs;
     }
 
     private class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -207,7 +280,7 @@ public class ForecastFragment extends Fragment {
 
 //                Log.v(LOG_TAG, "JSON: " + forecastJsonStr);
 
-            } catch (IOException|NullPointerException exception) {
+            } catch (IOException | NullPointerException exception) {
                 Log.e(LOG_TAG, "Error ", exception);
             } finally {
                 if (urlConnection != null) {
@@ -240,75 +313,6 @@ public class ForecastFragment extends Fragment {
                 mForecastAdapater.addAll(weatherForecast);
             }
         }
-    }
-
-    private String getReadableDateString(long time) {
-        // The API returns a unix timestamp (in secs) which should be converted into millis
-        Date date = new Date(time * 1000);
-        // http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
-        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
-        return format.format(date).toString();
-    }
-
-    /**
-     * Prepare the weather high/lows for presentation
-     */
-    private String formatHighLows(double high, double low) {
-        // For presentation, assume the user don't care about tenth of a degree
-        long roundedHigh = Math.round(high);
-        long roundedLow = Math.round(low);
-
-        String highLowStr = roundedHigh + "/" + roundedLow;
-        return highLowStr;
-    }
-
-    /**
-     * Take the String representing the complete forecast in JSON format and pull out the
-     * data we need to construct the Strings needed for the wireframes.
-     */
-    private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
-            throws JSONException {
-
-        // These are the names of the JSON objects that need to be extracted
-        final String OWM_LIST = "list";
-        final String OWM_WEATHER = "weather";
-        final String OWM_TEMPERATURE = "temp";
-        final String OWM_MAX = "max";
-        final String OWM_MIN = "min";
-        final String OWM_DATETIME = "dt";
-        final String OWM_DESCRIPTION = "description";
-
-        JSONObject forecastJson = new JSONObject(forecastJsonStr);
-        JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
-
-        String[] resultStrs = new String[numDays];
-        for (int i = 0; i < weatherArray.length(); i++) {
-            // For now, using the format Day - description - hi/low
-            String day;
-            String description;
-            String highAndLow;
-
-            // Get the JSON object representing the day
-            JSONObject dayForecast = weatherArray.getJSONObject(i);
-
-            long dateTime = dayForecast.getLong(OWM_DATETIME);
-            day = getReadableDateString(dateTime);
-
-            // description is in a child array, which is 1 element long
-            description = dayForecast.getJSONArray(OWM_WEATHER)
-                    .getJSONObject(0)
-                    .getString(OWM_DESCRIPTION);
-
-            // Temperatures are in a child object called "temp"
-            JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-            double high = temperatureObject.getDouble(OWM_MAX);
-            double low = temperatureObject.getDouble(OWM_MIN);
-            highAndLow = formatHighLows(high, low);
-
-            resultStrs[i] = day + " - " + description + " - " + highAndLow;
-        }
-
-        return resultStrs;
     }
 
 }
