@@ -36,8 +36,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,7 +64,7 @@ public class ForecastFragment extends Fragment {
 
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
-    private ArrayAdapter<String> mAdapter;
+    private ArrayAdapter<String> mForecastAdapater;
 
     public ForecastFragment() {
     }
@@ -94,7 +96,7 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         String[] forecastArray = {
                 "Today - Sunny - 88/63",
@@ -108,7 +110,7 @@ public class ForecastFragment extends Fragment {
         List<String> weekForecast = new ArrayList<>(
                 Arrays.asList(forecastArray));
 
-        mAdapter = new ArrayAdapter<>(
+        mForecastAdapater = new ArrayAdapter<>(
                 getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
@@ -116,7 +118,18 @@ public class ForecastFragment extends Fragment {
         );
 
         ListView listviewForecast = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listviewForecast.setAdapter(mAdapter);
+        listviewForecast.setAdapter(mForecastAdapater);
+
+        listviewForecast.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+//                TextView tv = (TextView) view;
+//                Toast.makeText(getActivity(), tv.getText().toString(), Toast.LENGTH_SHORT).show();
+                String forecast = mForecastAdapater.getItem(position);
+                Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
+
+            }
+        });
 
         return rootView;
     }
@@ -220,8 +233,8 @@ public class ForecastFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] weatherForecast) {
             if (weatherForecast != null) {
-                mAdapter.clear();
-                mAdapter.addAll(weatherForecast);
+                mForecastAdapater.clear();
+                mForecastAdapater.addAll(weatherForecast);
             }
         }
     }
