@@ -128,7 +128,7 @@ public class ForecastFragment extends Fragment {
 //                Toast.makeText(getActivity(), tv.getText().toString(), Toast.LENGTH_SHORT).show();
                 String forecast = mForecastAdapater.getItem(position);
 //                Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 intent.putExtra(EXTRA_FORECAST, forecast);
                 startActivity(intent);
             }
