@@ -24,22 +24,16 @@
   ~ SOFTWARE.                                                                     ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<resources>
 
-    <EditTextPreference
-        android:defaultValue="@string/pref_location_default"
-        android:icon="@drawable/ic_location"
-        android:inputType="text"
-        android:key="@string/pref_location_key"
-        android:singleLine="true"
-        android:title="@string/pref_location_label" />
+    <string-array name="units_entries">
+        <item>Metric</item>
+        <item>Imperial</item>
+    </string-array>
 
-    <ListPreference
-        android:defaultValue="@string/pref_units_default"
-        android:icon="@drawable/ic_units"
-        android:key="@string/pref_units_key"
-        android:entries="@array/units_entries"
-        android:entryValues="@array/units_entry_values"
-        android:title="@string/pref_units_label" />
+    <string-array name="units_entry_values">
+        <item>@string/pref_units_metric</item>
+        <item>@string/pref_units_imperial</item>
+    </string-array>
 
-</PreferenceScreen>
+</resources>

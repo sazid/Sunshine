@@ -189,6 +189,19 @@ public class ForecastFragment extends Fragment
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 
+        String preferred_unit = PreferenceManager
+                .getDefaultSharedPreferences(getActivity())
+                .getString(
+                        getString(R.string.pref_units_key),
+                        getString(R.string.pref_units_default)
+                );
+
+        // (C * 9/5) + 32 = F
+        if (preferred_unit == getString(R.string.pref_units_imperial)) {
+            roundedHigh = Math.round((high * 9/5) + 32);
+            roundedLow = Math.round((low * 9/5) + 32);
+        }
+
         String highLowStr = roundedHigh + "/" + roundedLow;
         return highLowStr;
     }
@@ -347,6 +360,7 @@ public class ForecastFragment extends Fragment
 
             mSwipeRefreshLayout.setRefreshing(false);
         }
+
     }
 
 }
