@@ -25,15 +25,15 @@
 
 package com.mohammedsazidalrashid.android.sunshine;
 
-import android.app.Activity;
 import android.app.FragmentManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
     public static String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -87,15 +87,6 @@ public class MainActivity extends Activity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            getFragmentManager().beginTransaction()
-                    .addToBackStack(null)
-                    .setCustomAnimations(
-                            R.animator.enter_anim,
-                            R.animator.exit_anim,
-                            R.animator.enter_anim_reverse,
-                            R.animator.exit_anim_reverse)
-                    .replace(R.id.container, new SettingsFragment())
-                    .commit();
             return true;
         }
 
@@ -105,7 +96,7 @@ public class MainActivity extends Activity {
     private void shouldDisplayHomeUp() {
         boolean canGoBack = getFragmentManager().getBackStackEntryCount() > 0;
         try {
-            getActionBar().setDisplayHomeAsUpEnabled(canGoBack);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(canGoBack);
         } catch (NullPointerException e) {
             Log.e(LOG_TAG, e.getMessage().toString(), e);
             e.printStackTrace();
@@ -113,7 +104,7 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public boolean onNavigateUp() {
+    public boolean onSupportNavigateUp() {
         // This method is called when the Up button is pressed.
 //        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         getFragmentManager().popBackStack();
