@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,6 +41,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,19 +55,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by sazid on 12/19/2014.
  */
-public class ForecastFragment extends Fragment {
+public class ForecastFragment extends Fragment
+        implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String EXTRA_FORECAST = null;
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
-    Bundle mBundle;
+
+    private Bundle mBundle;
     private ArrayAdapter<String> mForecastAdapater;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     public ForecastFragment() {
     }
@@ -84,45 +87,55 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onRefresh() {
+        updateWeather();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            String location = PreferenceManager
-                    .getDefaultSharedPreferences(getActivity())
-                    .getString(
-                            getString(R.string.pref_location_key),
-                            getString(R.string.pref_location_default)
-                    );
-            weatherTask.execute(location);
+//            updateWeather();
+            mSwipeRefreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateWeather();
+                    mSwipeRefreshLayout.setRefreshing(true);
+                }
+            });
+            Toast.makeText(getActivity(), "TIP: Swipe down to refresh :)", Toast.LENGTH_SHORT)
+                    .show();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void updateWeather() {
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        String location = PreferenceManager
+                .getDefaultSharedPreferences(getActivity())
+                .getString(
+                        getString(R.string.pref_location_key),
+                        getString(R.string.pref_location_default)
+                );
+        weatherTask.execute(location);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_forecast, container, false);
 
-        String[] forecastArray = {
-                "Today - Sunny - 88/63",
-                "Tomorrow - Foggy - 74/46",
-                "Weds - Cloudy - 72/63",
-                "Thurs - Rainy - 64/51",
-                "Fri - Foggy - 70/64",
-                "Sat - Sunny - 76/68"
-        };
-
-        List<String> weekForecast = new ArrayList<>(
-                Arrays.asList(forecastArray));
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.teal500);
 
         mForecastAdapater = new ArrayAdapter<>(
                 getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
-                weekForecast
+                new ArrayList<String>()
         );
 
         ListView listviewForecast = (ListView) rootView.findViewById(R.id.listview_forecast);
@@ -146,6 +159,18 @@ public class ForecastFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                updateWeather();
+                mSwipeRefreshLayout.setRefreshing(true);
+            }
+        });
     }
 
     private String getReadableDateString(long time) {
@@ -319,6 +344,8 @@ public class ForecastFragment extends Fragment {
                 mForecastAdapater.clear();
                 mForecastAdapater.addAll(weatherForecast);
             }
+
+            mSwipeRefreshLayout.setRefreshing(false);
         }
     }
 
