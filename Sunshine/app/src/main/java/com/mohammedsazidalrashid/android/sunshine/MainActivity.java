@@ -26,11 +26,15 @@
 package com.mohammedsazidalrashid.android.sunshine;
 
 import android.app.FragmentManager;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -97,6 +101,33 @@ public class MainActivity extends ActionBarActivity {
                             R.animator.exit_anim_reverse)
                     .replace(R.id.container, new SettingsFragment())
                     .commit();
+            return true;
+        } else if (id == R.id.action_locate) {
+            String preferredLocation = PreferenceManager
+                    .getDefaultSharedPreferences(this)
+                    .getString(
+                            getString(R.string.pref_location_key),
+                            getString(R.string.pref_location_default)
+                    );
+
+            String queryParam = "q";
+            Uri locateUri = Uri.parse("geo:0,0?").buildUpon()
+                    .appendQueryParameter(queryParam, preferredLocation).build();
+
+            Intent locateIntent = new Intent();
+            locateIntent.setAction(Intent.ACTION_VIEW);
+            locateIntent.setData(locateUri);
+
+            if (locateIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(locateIntent);
+            } else {
+                Toast.makeText(
+                        this,
+                        "Sorry, no suiteable application found on your device.",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+
             return true;
         }
 
