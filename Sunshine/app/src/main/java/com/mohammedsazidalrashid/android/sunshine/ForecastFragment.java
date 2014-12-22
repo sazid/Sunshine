@@ -38,6 +38,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -85,6 +86,7 @@ public class ForecastFragment extends Fragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.forecastfragment, menu);
     }
+
 
     @Override
     public void onRefresh() {
@@ -138,7 +140,7 @@ public class ForecastFragment extends Fragment
                 new ArrayList<String>()
         );
 
-        ListView listviewForecast = (ListView) rootView.findViewById(R.id.listview_forecast);
+        final ListView listviewForecast = (ListView) rootView.findViewById(R.id.listview_forecast);
         listviewForecast.setAdapter(mForecastAdapater);
 
         listviewForecast.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -155,6 +157,21 @@ public class ForecastFragment extends Fragment
                                 R.animator.exit_anim_reverse)
                         .replace(R.id.container, new DetailsFragment())
                         .commit();
+            }
+        });
+
+        listviewForecast.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int topRowVerticalPosition =
+                        (listviewForecast == null || listviewForecast.getChildCount() == 0) ?
+                                0 : listviewForecast.getChildAt(0).getTop();
+                mSwipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
             }
         });
 
