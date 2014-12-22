@@ -2,12 +2,22 @@
 <resources>
 
     <string name="app_name" translateable="false">Sunshine</string>
+
     <string name="hello_world">Hello world!</string>
     <string name="loading">Loading...</string>
+    <string name="label_details">Details</string>
+
     <string name="action_settings">Settings</string>
     <string name="action_refresh" translatable="false">Refresh</string>
+
     <string name="title_activity_detail">Detail</string>
     <string name="title_activity_details">Details</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Preferences -->
+    <string name="pref_location_label">Location</string>
+
+    <string name="pref_location_key" transalteable="false">location</string>
+
+    <string name="pref_location_default" translateable="false">Dhaka,BD</string>
 
 </resources>

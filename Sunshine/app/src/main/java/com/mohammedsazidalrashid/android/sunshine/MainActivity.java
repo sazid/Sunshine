@@ -43,6 +43,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, new ForecastFragment())
@@ -87,6 +88,15 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            getFragmentManager().beginTransaction()
+                    .addToBackStack(null)
+                    .setCustomAnimations(
+                            R.animator.enter_anim,
+                            R.animator.exit_anim,
+                            R.animator.enter_anim_reverse,
+                            R.animator.exit_anim_reverse)
+                    .replace(R.id.container, new SettingsFragment())
+                    .commit();
             return true;
         }
 
@@ -95,6 +105,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void shouldDisplayHomeUp() {
         boolean canGoBack = getFragmentManager().getBackStackEntryCount() > 0;
+        changeActionBarTitle(canGoBack);
         try {
             getSupportActionBar().setDisplayHomeAsUpEnabled(canGoBack);
         } catch (NullPointerException e) {
@@ -103,11 +114,17 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    private void changeActionBarTitle(boolean canGoBack) {
+        if (!canGoBack) {
+            getSupportActionBar().setTitle(R.string.app_name);
+        }
+    }
+
     @Override
     public boolean onSupportNavigateUp() {
         // This method is called when the Up button is pressed.
-//        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        getFragmentManager().popBackStack();
+        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        getFragmentManager().popBackStack();
         return true;
     }
 
