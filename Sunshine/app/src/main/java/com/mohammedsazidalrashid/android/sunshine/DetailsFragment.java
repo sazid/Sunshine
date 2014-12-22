@@ -26,20 +26,26 @@
 package com.mohammedsazidalrashid.android.sunshine;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.support.v7.widget.ShareActionProvider;
 import android.widget.TextView;
 
 
 public class DetailsFragment extends Fragment {
 
-    private Bundle mBundle;
+    private static final String LOG_TAG = DetailsFragment.class.getSimpleName();
+
+    private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
     public DetailsFragment() {
     }
@@ -47,7 +53,6 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBundle = savedInstanceState;
 
         ((ActionBarActivity) getActivity()).getSupportActionBar().
                 setTitle(getString(R.string.label_details));
@@ -73,7 +78,18 @@ public class DetailsFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.detailsfragment, menu);
+
+        MenuItem item = menu.findItem(R.id.action_share);
+
+        ShareActionProvider mShareActionProvider = (ShareActionProvider)
+                MenuItemCompat.getActionProvider(item);
+
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(createShareForecastIntent());
+        } else {
+            Log.e(LOG_TAG, "Share action provider is null");
+        }
     }
 
     @Override
@@ -89,9 +105,21 @@ public class DetailsFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
-
     }
 
+    private Intent createShareForecastIntent() {
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(
+                Intent.EXTRA_TEXT,
+                MainActivity.bundleForFragments
+                        .getString(ForecastFragment.EXTRA_FORECAST)
+                        + FORECAST_SHARE_HASHTAG
+        );
+
+        return shareIntent;
+    }
 
 }
-
