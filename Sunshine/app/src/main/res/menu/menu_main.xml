@@ -5,7 +5,7 @@
 
     <item
         android:id="@+id/action_locate"
-        android:title="@string/action_locate"
+        android:title="@string/action_map"
         app:showAsAction="never" />
 
     <item

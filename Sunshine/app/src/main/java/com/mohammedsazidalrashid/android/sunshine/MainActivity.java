@@ -111,19 +111,19 @@ public class MainActivity extends ActionBarActivity {
                     );
 
             String queryParam = "q";
-            Uri locateUri = Uri.parse("geo:0,0?").buildUpon()
+            Uri mapUri = Uri.parse("geo:0,0?").buildUpon()
                     .appendQueryParameter(queryParam, preferredLocation).build();
 
-            Intent locateIntent = new Intent();
-            locateIntent.setAction(Intent.ACTION_VIEW);
-            locateIntent.setData(locateUri);
+            Intent mapIntent = new Intent();
+            mapIntent.setAction(Intent.ACTION_VIEW);
+            mapIntent.setData(mapUri);
 
-            if (locateIntent.resolveActivity(getPackageManager()) != null) {
-                startActivity(locateIntent);
+            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(mapIntent);
             } else {
                 Toast.makeText(
                         this,
-                        "Sorry, no suiteable application found on your device.",
+                        "Sorry, no suiteable application found on your device to handle this operation",
                         Toast.LENGTH_SHORT
                 ).show();
             }
