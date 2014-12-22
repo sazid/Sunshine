@@ -4,7 +4,7 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_locate"
+        android:id="@+id/action_map"
         android:title="@string/action_map"
         app:showAsAction="never" />
 

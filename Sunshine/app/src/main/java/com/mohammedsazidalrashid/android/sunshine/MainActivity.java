@@ -102,32 +102,8 @@ public class MainActivity extends ActionBarActivity {
                     .replace(R.id.container, new SettingsFragment())
                     .commit();
             return true;
-        } else if (id == R.id.action_locate) {
-            String preferredLocation = PreferenceManager
-                    .getDefaultSharedPreferences(this)
-                    .getString(
-                            getString(R.string.pref_location_key),
-                            getString(R.string.pref_location_default)
-                    );
-
-            String queryParam = "q";
-            Uri mapUri = Uri.parse("geo:0,0?").buildUpon()
-                    .appendQueryParameter(queryParam, preferredLocation).build();
-
-            Intent mapIntent = new Intent();
-            mapIntent.setAction(Intent.ACTION_VIEW);
-            mapIntent.setData(mapUri);
-
-            if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                startActivity(mapIntent);
-            } else {
-                Toast.makeText(
-                        this,
-                        "Sorry, no suiteable application found on your device to handle this operation",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-
+        } else if (id == R.id.action_map) {
+            showMap();
             return true;
         }
 
@@ -157,6 +133,33 @@ public class MainActivity extends ActionBarActivity {
         getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 //        getFragmentManager().popBackStack();
         return true;
+    }
+
+    private void showMap() {
+        String preferredLocation = PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getString(
+                        getString(R.string.pref_location_key),
+                        getString(R.string.pref_location_default)
+                );
+
+        String queryParam = "q";
+        Uri mapUri = Uri.parse("geo:0,0?").buildUpon()
+                .appendQueryParameter(queryParam, preferredLocation).build();
+
+        Intent mapIntent = new Intent();
+        mapIntent.setAction(Intent.ACTION_VIEW);
+        mapIntent.setData(mapUri);
+
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        } else {
+            Toast.makeText(
+                    this,
+                    "Sorry, no suiteable application found on your device to handle this operation",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 
 }

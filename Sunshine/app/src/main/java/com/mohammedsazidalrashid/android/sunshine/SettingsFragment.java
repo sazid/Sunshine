@@ -78,7 +78,7 @@ public class SettingsFragment extends PreferenceFragment
 
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
-            // the preference's entries list (since they have seperate labels/values)
+            // the preference's entries list (since they have separate labels/values)
             ListPreference listPreference = (ListPreference) preference;
             int prefIndex = listPreference.findIndexOfValue(stringValue);
             if (prefIndex >= 0) {
