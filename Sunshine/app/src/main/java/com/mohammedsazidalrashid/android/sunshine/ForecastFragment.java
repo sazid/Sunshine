@@ -131,7 +131,7 @@ public class ForecastFragment extends Fragment
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.teal500);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.light_blue_500);
 
         mForecastAdapater = new ArrayAdapter<>(
                 getActivity(),
