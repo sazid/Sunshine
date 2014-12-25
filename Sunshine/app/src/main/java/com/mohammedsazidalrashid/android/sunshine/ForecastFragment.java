@@ -67,7 +67,6 @@ public class ForecastFragment extends Fragment
     public static final String EXTRA_FORECAST = null;
     private final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
-    private Bundle mBundle;
     private ArrayAdapter<String> mForecastAdapater;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -79,7 +78,6 @@ public class ForecastFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
-        mBundle = savedInstanceState;
     }
 
     @Override
@@ -131,7 +129,12 @@ public class ForecastFragment extends Fragment
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.light_blue_500);
+        mSwipeRefreshLayout.setColorSchemeResources(
+                R.color.light_blue_500,
+                R.color.teal500,
+                R.color.green_500,
+                R.color.orange_500
+        );
 
         mForecastAdapater = new ArrayAdapter<>(
                 getActivity(),
@@ -219,8 +222,7 @@ public class ForecastFragment extends Fragment
             roundedLow = Math.round((low * 9/5) + 32);
         }
 
-        String highLowStr = roundedHigh + "/" + roundedLow;
-        return highLowStr;
+        return roundedHigh + "/" + roundedLow;
     }
 
     /**

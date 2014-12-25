@@ -57,8 +57,7 @@ public class SettingsFragment extends PreferenceFragment
      * Attaches a listener so that the summary is always updated with the preference value
      * Also fires the listener once to, to initialize the summary (so it shows up before the value
      * is changed)
-     * @param preference
-     * @return
+     * @param preference:Preference The preference object to bind the summary to
      */
     private void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes

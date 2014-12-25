@@ -39,7 +39,7 @@ import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
-    public static String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     public static Bundle bundleForFragments = new Bundle();
 
