@@ -131,9 +131,9 @@ public class ForecastFragment extends Fragment
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mSwipeRefreshLayout.setColorSchemeResources(
                 R.color.light_blue_500,
+                R.color.orange_500,
                 R.color.teal500,
-                R.color.green_500,
-                R.color.orange_500
+                R.color.green_500
         );
 
         mForecastAdapater = new ArrayAdapter<>(
