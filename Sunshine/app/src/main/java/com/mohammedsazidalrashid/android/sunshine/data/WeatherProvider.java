@@ -258,11 +258,69 @@ public class WeatherProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int deletedRows;
+
+        switch (match) {
+            case WEATHER: {
+                 deletedRows = db.delete(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            }
+            case LOCATION: {
+                deletedRows = db.delete(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if (selection == null || deletedRows == 0)
+            getContext().getContentResolver().notifyChange(uri, null);
+
+        return deletedRows;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        final int rowsUpdated;
+
+        switch (match) {
+            case WEATHER:
+                rowsUpdated = db.update(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            case LOCATION:
+                rowsUpdated = db.update(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        values,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if ( 0 != rowsUpdated ) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return rowsUpdated;
     }
 }

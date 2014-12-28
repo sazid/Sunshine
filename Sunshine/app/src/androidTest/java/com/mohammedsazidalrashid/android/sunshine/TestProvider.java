@@ -33,7 +33,6 @@ import android.test.AndroidTestCase;
 
 import com.mohammedsazidalrashid.android.sunshine.data.WeatherContract.LocationEntry;
 import com.mohammedsazidalrashid.android.sunshine.data.WeatherContract.WeatherEntry;
-import com.mohammedsazidalrashid.android.sunshine.data.WeatherDbHelper;
 
 /**
  * Created by sazid on 12/23/2014.
@@ -46,7 +45,7 @@ public class TestProvider extends AndroidTestCase {
     static public String TEST_LOCATION = "99705";
     static public String TEST_DATE = "20141205";
 
-    static ContentValues createNorthPoleLocationValues() {
+    static ContentValues getLocationContentValues() {
         // Create a new map of values, where column names are the keys
         ContentValues testValues = new ContentValues();
         testValues.put(LocationEntry.COLUMN_LOCATION_SETTING, TEST_LOCATION);
@@ -73,8 +72,41 @@ public class TestProvider extends AndroidTestCase {
         return weatherValues;
     }
 
-    public void testDeleteDb() throws Throwable {
-        mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
+    public void deleteAllRecords() {
+        mContext.getContentResolver()
+                .delete(WeatherEntry.CONTENT_URI, null, null);
+        mContext.getContentResolver()
+                .delete(LocationEntry.CONTENT_URI, null, null);
+
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals(0, cursor.getCount());
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(
+                WeatherEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        assertEquals(0, cursor.getCount());
+        cursor.close();
+    }
+
+    @Override
+    public void setUp() {
+        deleteAllRecords();
+    }
+
+    @Override
+    public void tearDown() {
+        deleteAllRecords();
     }
 
     public void testGetType() {
@@ -110,7 +142,7 @@ public class TestProvider extends AndroidTestCase {
 
     public void testInsertReadProvider() throws Throwable {
 
-        ContentValues locationValues = createNorthPoleLocationValues();
+        ContentValues locationValues = getLocationContentValues();
 
         //------------------- LocationEntry test --------------------//
 
@@ -186,6 +218,41 @@ public class TestProvider extends AndroidTestCase {
         TestDb.assertMoveToFirstAndValidate(cursor, weatherValues);
         cursor.close();
 
+    }
+
+    public void testUpdateLocation() {
+        ContentValues values1 = getLocationContentValues();
+
+        Uri locationUri = mContext.getContentResolver()
+                .insert(LocationEntry.CONTENT_URI, values1);
+        long locationId = ContentUris.parseId(locationUri);
+
+        assertTrue(locationId != -1);
+
+        ContentValues values2 = new ContentValues(values1);
+        values2.put(LocationEntry._ID, locationId);
+        values2.put(LocationEntry.COLUMN_CITY_NAME, "Tester's vilage");
+
+        int count = mContext.getContentResolver().update(
+                LocationEntry.CONTENT_URI,
+                values2,
+                LocationEntry._ID + " = ? ",
+                new String[]{Long.toString(locationId)}
+        );
+
+        assertEquals(count, 1);
+
+        Cursor cursor = mContext.getContentResolver().query(
+                LocationEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+        );
+
+        TestDb.assertMoveToFirstAndValidate(cursor, values2);
+
+        cursor.close();
     }
 
 }
