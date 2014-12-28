@@ -25,11 +25,11 @@
 
 package com.mohammedsazidalrashid.android.sunshine;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 import com.mohammedsazidalrashid.android.sunshine.data.WeatherContract.LocationEntry;
 import com.mohammedsazidalrashid.android.sunshine.data.WeatherContract.WeatherEntry;
@@ -110,19 +110,12 @@ public class TestProvider extends AndroidTestCase {
 
     public void testInsertReadProvider() throws Throwable {
 
-        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
         ContentValues locationValues = createNorthPoleLocationValues();
 
         //------------------- LocationEntry test --------------------//
 
-        long locationRowId;
-        locationRowId = db.insert(LocationEntry.TABLE_NAME, null, locationValues);
-
-        // Verify we got a row back
-        assertTrue(locationRowId != -1);
-        Log.d(LOG_TAG, "New location row id: " + locationRowId);
+        Uri locationUri = mContext.getContentResolver().insert(LocationEntry.CONTENT_URI, locationValues);
+        long locationRowId = ContentUris.parseId(locationUri);
 
         // A cursor is the primary interface to the query results
         String[] projection = TestDb.valuesFromContents(locationValues);
@@ -150,11 +143,7 @@ public class TestProvider extends AndroidTestCase {
 
         ContentValues weatherValues = createWeatherValues(locationRowId);
 
-        long weatherRowId;
-        weatherRowId = db.insert(WeatherEntry.TABLE_NAME, null, weatherValues);
-
-        assert(weatherRowId != -1);
-        Log.d(LOG_TAG, "Weather row id: " + weatherRowId);
+        Uri insertUri = mContext.getContentResolver().insert(WeatherEntry.CONTENT_URI, weatherValues);
 
         projection = TestDb.valuesFromContents(weatherValues);
         cursor = mContext.getContentResolver().query(
@@ -196,8 +185,6 @@ public class TestProvider extends AndroidTestCase {
         );
         TestDb.assertMoveToFirstAndValidate(cursor, weatherValues);
         cursor.close();
-
-        db.close();
 
     }
 
