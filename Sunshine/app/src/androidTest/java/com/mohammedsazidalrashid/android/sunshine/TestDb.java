@@ -57,11 +57,7 @@ public class TestDb extends AndroidTestCase {
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues locationValues = new ContentValues();
-        locationValues.put(LocationEntry.COLUMN_CITY_NAME, "North Pole");
-        locationValues.put(LocationEntry.COLUMN_LOCATION_SETTING, "99705");
-        locationValues.put(LocationEntry.COLUMN_COORD_LAT, 64.772);
-        locationValues.put(LocationEntry.COLUMN_COORD_LONG, -147.355);
+        ContentValues locationValues = createNorthPoleLocationValues();
 
         long locationRowId;
         locationRowId = db.insert(LocationEntry.TABLE_NAME, null, locationValues);
@@ -73,19 +69,9 @@ public class TestDb extends AndroidTestCase {
         // A cursor is the primary interface to the query results
         Cursor cursor = queryDbForTable(db, LocationEntry.TABLE_NAME, locationValues);
 
-        assertMoveToFirst(cursor, locationValues);
+        assertMoveToFirstAndValidate(cursor, locationValues);
 
-        ContentValues weatherValues = new ContentValues();
-        weatherValues.put(WeatherEntry.COLUMN_LOC_KEY, locationRowId);
-        weatherValues.put(WeatherEntry.COLUMN_DATETEXT, "20141205");
-        weatherValues.put(WeatherEntry.COLUMN_DEGREES, 1.1);
-        weatherValues.put(WeatherEntry.COLUMN_HUMIDITY, 1.2);
-        weatherValues.put(WeatherEntry.COLUMN_PRESSURE, 1.3);
-        weatherValues.put(WeatherEntry.COLUMN_MAX_TEMP, 75);
-        weatherValues.put(WeatherEntry.COLUMN_MIN_TEMP, 65);
-        weatherValues.put(WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
-        weatherValues.put(WeatherEntry.COLUMN_WIND_SPEED, 5.5);
-        weatherValues.put(WeatherEntry.COLUMN_WEATHER_ID, 321);
+        ContentValues weatherValues = createWeatherValues(locationRowId);
 
         long weatherRowId;
         weatherRowId = db.insert(WeatherEntry.TABLE_NAME, null, weatherValues);
@@ -95,13 +81,13 @@ public class TestDb extends AndroidTestCase {
 
         cursor = queryDbForTable(db, WeatherEntry.TABLE_NAME, weatherValues);
 
-        assertMoveToFirst(cursor, weatherValues);
+        assertMoveToFirstAndValidate(cursor, weatherValues);
 
         db.close();
 
     }
 
-    private void assertColumnsWithValues(Cursor cursor, ContentValues contentValues) {
+    static void validateCursor(Cursor cursor, ContentValues contentValues) {
         for (String key: contentValues.keySet()) {
             int idx = cursor.getColumnIndex(key);
             String valueInDb = cursor.getString(idx);
@@ -109,7 +95,7 @@ public class TestDb extends AndroidTestCase {
         }
     }
 
-    private String[] valuesFromContents(ContentValues contentValues) {
+    static String[] valuesFromContents(ContentValues contentValues) {
         if (contentValues == null) {
             return null;
         }
@@ -122,7 +108,7 @@ public class TestDb extends AndroidTestCase {
 
     private Cursor queryDbForTable
             (SQLiteDatabase db, String tableName, ContentValues contentValues) {
-        String[] projection = valuesFromContents(contentValues);
+        String[] projection = TestDb.valuesFromContents(contentValues);
         Cursor cursor = db.query(
                 tableName,
                 projection,
@@ -136,12 +122,39 @@ public class TestDb extends AndroidTestCase {
         return cursor;
     }
 
-    private void assertMoveToFirst(Cursor cursor, ContentValues contentValues) {
+    static void assertMoveToFirstAndValidate(Cursor cursor, ContentValues contentValues)  {
         if (cursor.moveToFirst()) {
-            assertColumnsWithValues(cursor, contentValues);
+            TestDb.validateCursor(cursor, contentValues);
         } else {
             fail("No data returned :(");
         }
+    }
+
+    static ContentValues createNorthPoleLocationValues() {
+        // Create a new map of values, where column names are the keys
+        ContentValues testValues = new ContentValues();
+        testValues.put(LocationEntry.COLUMN_LOCATION_SETTING, "99705");
+        testValues.put(LocationEntry.COLUMN_CITY_NAME, "North Pole");
+        testValues.put(LocationEntry.COLUMN_COORD_LAT, 64.7488);
+        testValues.put(LocationEntry.COLUMN_COORD_LONG, -147.353);
+
+        return testValues;
+    }
+
+    static ContentValues createWeatherValues(long locationRowId) {
+        ContentValues weatherValues = new ContentValues();
+        weatherValues.put(WeatherEntry.COLUMN_LOC_KEY, locationRowId);
+        weatherValues.put(WeatherEntry.COLUMN_DATETEXT, "20141205");
+        weatherValues.put(WeatherEntry.COLUMN_DEGREES, 1.1);
+        weatherValues.put(WeatherEntry.COLUMN_HUMIDITY, 1.2);
+        weatherValues.put(WeatherEntry.COLUMN_PRESSURE, 1.3);
+        weatherValues.put(WeatherEntry.COLUMN_MAX_TEMP, 75);
+        weatherValues.put(WeatherEntry.COLUMN_MIN_TEMP, 65);
+        weatherValues.put(WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
+        weatherValues.put(WeatherEntry.COLUMN_WIND_SPEED, 5.5);
+        weatherValues.put(WeatherEntry.COLUMN_WEATHER_ID, 321);
+
+        return weatherValues;
     }
 
 }
