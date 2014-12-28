@@ -323,4 +323,38 @@ public class WeatherProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return rowsUpdated;
     }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int returnCount = 0;
+        switch (match) {
+            case WEATHER:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(
+                                WeatherContract.WeatherEntry.TABLE_NAME,
+                                null,
+                                value
+                        );
+
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                break;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnCount;
+    }
 }
